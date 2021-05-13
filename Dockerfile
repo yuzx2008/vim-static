@@ -13,9 +13,23 @@ ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
 RUN tar xf ${VIM_VERSION}.tar.gz
 RUN cd vim-* && \
-        LDFLAGS="-static" ./configure --disable-channel --disable-gpm --disable-gtktest --disable-gui --disable-netbeans --disable-nls --disable-selinux --disable-smack --disable-sysmouse --disable-xsmp --enable-multibyte --with-features=huge --without-x --with-tlib=ncursesw && \
-        make && \
-        make install
+        LDFLAGS="-static" ./configure \
+        --disable-gtktest \
+        --disable-gui \
+        --disable-netbeans \
+        --disable-nls \
+        --disable-selinux \
+        --disable-smack \
+        --disable-sysmouse \
+        --disable-xsmp \
+        --enable-gpm \
+        --enable-multibyte \
+        --enable-python3interp=dynamic \
+        --with-compiledby='GitHub Actions' \
+        --with-features=huge \
+        --with-tlib=ncursesw \
+        --without-x \
+        && make && make install
 
 RUN mkdir -p /out/vim
 RUN cp -r /usr/local/* /out/vim
