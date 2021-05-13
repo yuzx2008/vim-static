@@ -1,0 +1,30 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'vim tagname to build'
+        required: true
+        default: 'v7.2'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --build-arg VIM_VERSION=${{ github.event.inputs.version }} --tag vim-build:${{ github.event.inputs.version }}
+    - name: Generate artifacts
+      run: docker run --rm -it vim-build:${{ github.event.inputs.version }} cat /out/vim-${{ github.event.inputs.version }}.tar.xz > vim-${{ github.event.inputs.version }}.tar.xz
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist-without-markdown
+        path: |
+          vim-*.tar.xz
+            !dist/**/*.md
