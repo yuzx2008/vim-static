@@ -20,11 +20,10 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --build-arg VIM_VERSION=${{ github.event.inputs.version }} --tag vim-build:${{ github.event.inputs.version }}
     - name: Generate artifacts
-      run: docker run --rm -it vim-build:${{ github.event.inputs.version }} cat /out/vim-${{ github.event.inputs.version }}.tar.xz > vim-${{ github.event.inputs.version }}.tar.xz
+      run: docker run --rm -i vim-build:${{ github.event.inputs.version }} cat /out/vim-${{ github.event.inputs.version }}.tar.xz > vim-${{ github.event.inputs.version }}.tar.xz
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: dist-without-markdown
+        name: binary archive
         path: |
           vim-*.tar.xz
-            !dist/**/*.md
