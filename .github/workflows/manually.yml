@@ -1,0 +1,58 @@
+name: Build Manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'vim tagname to build'
+        required: true
+        default: 'v7.2'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Detect latest stable version
+      id: latest-ver-get
+      run: echo '${{ github.event.inputs.version }}' > latest.txt && printf '::set-output name=latest::%s\n' $(cat latest.txt)
+
+    - name: Gather all tagged version
+      run: curl -Ls https://api.github.com/repos/lixiao-tap4fun/vim-static/releases | jq -r '.[].tag_name' | sort > tagged.txt
+
+    - name: Detect if tagged
+      # fail if already exists.
+      run: test -z "$(comm -12 latest.txt tagged.txt)"
+
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --build-arg VIM_VERSION=${{ steps.latest-ver-get.outputs.latest }} --tag vim-build:${{ steps.latest-ver-get.outputs.latest }}
+
+    - name: Generate artifacts
+      run: docker run --rm -i vim-build:${{ steps.latest-ver-get.outputs.latest }} cat /out/vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz > vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.latest-ver-get.outputs.latest }}
+        release_name: Release ${{ steps.latest-ver-get.outputs.latest }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
+        asset_name: vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
+        asset_content_type: application/x-tar
