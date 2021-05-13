@@ -26,6 +26,8 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh -e' 'cwd="$(dirname "$(realpath "$0")")"' '
 
 RUN strip /out/vim/bin/vim
 RUN chown -R $(id -u):$(id -g) /out/vim
+
+RUN apk add tar xz
 RUN tar -acf /out/vim-${VIM_VERSION}.tar.xz -C /out vim
 
 RUN echo 'run `docker run --rm -i NAME-OF-THIS-IMAGE cat /out/vim-${VIM_VERSION}.tar.xz > OUTPUT-FILENAME.tar.xz` to get result file.'
