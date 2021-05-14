@@ -38,9 +38,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.latest-ver-get.outputs.latest }}
-        release_name: Release ${{ steps.latest-ver-get.outputs.latest }}
+        release_name: Package ${{ steps.latest-ver-get.outputs.latest }}
         draft: false
         prerelease: false
+        body: Package ${{ steps.latest-ver-get.outputs.latest }}
 
     - name: Upload Release Asset
       id: upload-release-asset 
