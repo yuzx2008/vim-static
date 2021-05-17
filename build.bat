@@ -2,9 +2,6 @@
 :: Batch file for building/testing Vim on AppVeyor
 
 setlocal ENABLEDELAYEDEXPANSION
-rem FOR /f "delims=. tokens=1-3" %%i in ("%APPVEYOR_REPO_TAG_NAME%") do set PATCHLEVEL=%%k
-
-rem cd %APPVEYOR_BUILD_FOLDER%
 
 if /I "%ARCH%"=="x64" (
 	set BIT=64
@@ -45,7 +42,7 @@ exit 1
 :: Get Vim source code
 call :downloadfile %VIM_URL% vim.zip
 7z x -y vim.zip
-move vim-* vim
+move vim-* vim-src
 
 if not exist downloads mkdir downloads
 
@@ -53,11 +50,11 @@ if not exist downloads mkdir downloads
 call :downloadfile %WINPTY_URL% downloads\winpty.zip
 7z x -y downloads\winpty.zip -oc:\winpty > nul || exit 1
 if /i "%ARCH%"=="x64" (
-	copy /Y c:\winpty\x64_xp\bin\winpty.dll        vim\src\winpty64.dll
-	copy /Y c:\winpty\x64_xp\bin\winpty-agent.exe  vim\src\
+	copy /Y c:\winpty\x64_xp\bin\winpty.dll        vim-src\src\winpty64.dll
+	copy /Y c:\winpty\x64_xp\bin\winpty-agent.exe  vim-src\src\
 ) else (
-	copy /Y c:\winpty\ia32_xp\bin\winpty.dll       vim\src\winpty32.dll
-	copy /Y c:\winpty\ia32_xp\bin\winpty-agent.exe vim\src\
+	copy /Y c:\winpty\ia32_xp\bin\winpty.dll       vim-src\src\winpty32.dll
+	copy /Y c:\winpty\ia32_xp\bin\winpty-agent.exe vim-src\src\
 )
 
 :: Show PATH for debugging
@@ -71,7 +68,7 @@ goto :eof
 :build_x64
 :: ----------------------------------------------------------------------
 @echo on
-cd vim\src
+cd vim-src\src
 
 :: Setting for targeting Windows XP
 set WinSdk71=%ProgramFiles(x86)%\Microsoft SDKs\Windows\v7.1A
@@ -83,13 +80,6 @@ if /i "%ARCH%"=="x64" (
 )
 set CL=/D_USING_V110_SDK71_
 
-:: Replace VIM_VERSION_PATCHLEVEL in version.h with the actual patchlevel
-:: Set CHERE_INVOKING to start Cygwin in the current directory
-rem set CHERE_INVOKING=1
-rem c:\cygwin64\bin\bash -lc "sed -i -e /VIM_VERSION_PATCHLEVEL/s/0/$(sed -n -e '/included_patches/{n;n;n;s/ *\([0-9]*\).*/\1/p;q}' version.c)/ version.h"
-
-:: Remove progress bar from the build log
-rem sed -e "s/@<<$/@<< | sed -e 's#.*\\\\r.*##'/" Make_mvc.mak > Make_mvc2.mak
 :: Build GUI version
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
 nmake -f Make_mvc.mak ^
@@ -121,7 +111,7 @@ goto :eof
 :: ----------------------------------------------------------------------
 @echo on
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
-cd vim\src
+cd vim-src\src
 
 mkdir GvimExt64
 mkdir GvimExt32
@@ -153,9 +143,10 @@ copy /Y GvimExt32\*.*                    ..\runtime\GvimExt32\
 copy /Y ..\..\diff.exe ..\runtime\
 copy /Y winpty* ..\runtime\
 copy /Y winpty* ..\..\
-set dir=vim%APPVEYOR_REPO_TAG_NAME:~1,1%%APPVEYOR_REPO_TAG_NAME:~3,1%
-mkdir ..\vim\%dir%
-xcopy ..\runtime ..\vim\%dir% /Y /E /V /I /H /R /Q
+rem vim v8.2.0001 -> v82
+set dir=vim%VIM_VERSION:~1,1%%VIM_VERSION:~3,1%
+mkdir ..\..\vim\%dir%
+xcopy ..\runtime ..\..\vim\%dir% /Y /E /V /I /H /R /Q
 
 @echo off
 goto :eof
