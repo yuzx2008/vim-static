@@ -6,14 +6,13 @@ on:
 
 jobs:
 
-  build:
+  version-detect:
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Detect latest stable version
-      id: latest-ver-get
-      run: printf 'v%s\n' "$(curl -Ls https://archlinux.org/packages/extra/x86_64/vim/json/ | jq -r .pkgver)" > latest.txt && printf '::set-output name=latest::%s\n' $(cat latest.txt)
+      run: printf 'v%s\n' "$(curl -Ls https://archlinux.org/packages/extra/x86_64/vim/json/ | jq -r .pkgver)" > latest.txt
 
     - name: Gather all tagged version
       run: curl -Ls https://api.github.com/repos/lixiao-tap4fun/vim-static/releases | jq -r '.[].tag_name' | sort > tagged.txt
@@ -22,14 +21,79 @@ jobs:
       # fail if already exists.
       run: test -z "$(comm -12 latest.txt tagged.txt)"
 
+    - name: Share version
+      uses: actions/upload-artifact@v2
+      with:
+        name: ver
+        path: latest.txt
+
+  build-linux:
+
+    runs-on: ubuntu-latest
+    needs: version-detect
+
+    steps:
     - name: Checkout repo
       uses: actions/checkout@v2
 
+    - name: Download version
+      uses: actions/download-artifact@v2
+      with:
+        name: ver
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --build-arg VIM_VERSION=${{ steps.latest-ver-get.outputs.latest }} --tag vim-build:${{ steps.latest-ver-get.outputs.latest }}
+      run: docker build . --file Dockerfile --build-arg VIM_VERSION=$(cat latest.txt) --tag vim-build:$(cat latest.txt)
 
     - name: Generate artifacts
-      run: docker run --rm -i vim-build:${{ steps.latest-ver-get.outputs.latest }} cat /out/vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz > vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
+      run: docker run --rm -i vim-build:$(cat latest.txt) cat /out/vim-$(cat latest.txt).tar.xz > vim-linux-x64.tar.xz
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: vim-linux
+        path: vim-linux-x64.tar.xz
+
+  build-win32:
+
+    runs-on: windows-latest
+    needs: version-detect
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Download version
+      uses: actions/download-artifact@v2
+      with:
+        name: ver
+
+    - name: Build the package
+      run: |
+        set /p VIM_VERSION=<latest.txt
+        set ARCH=x86
+        build.bat install && build.bat build && build.bat package && 7z a vim-win32-x86.7z vim\vim
+      shell: cmd
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: vim-win32
+        path: vim-win32-x86.7z
+
+  release:
+
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-win32]
+
+    steps:
+    - name: Download version
+      uses: actions/download-artifact@v2
+      with:
+        name: ver
+
+    - name: Set version
+      id: latest-ver-get
+      run: printf '::set-output name=latest::%s\n' $(cat latest.txt)
 
     - name: Create Release
       id: create_release
@@ -41,15 +105,33 @@ jobs:
         release_name: Package ${{ steps.latest-ver-get.outputs.latest }}
         draft: false
         prerelease: false
-        body: Package ${{ steps.latest-ver-get.outputs.latest }}
 
-    - name: Upload Release Asset
-      id: upload-release-asset 
+    - name: Download linux
+      uses: actions/download-artifact@v2
+      with:
+        name: vim-linux
+
+    - name: Download win32
+      uses: actions/download-artifact@v2
+      with:
+        name: vim-win32
+
+    - name: Upload Release Asset linux
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
-        asset_name: vim-${{ steps.latest-ver-get.outputs.latest }}.tar.xz
+        asset_path: ./vim-linux-x64.tar.xz
+        asset_name: vim-${{ steps.latest-ver-get.outputs.latest }}-linux-x64.tar.xz
         asset_content_type: application/x-tar
+
+    - name: Upload Release Asset win32
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./vim-win32-x86.7z
+        asset_name: vim-${{ steps.latest-ver-get.outputs.latest }}-win32-x86.7z
+        asset_content_type: application/x-7z-compressed
