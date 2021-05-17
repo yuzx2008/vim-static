@@ -25,9 +25,7 @@ jobs:
       run: |
         set VIM_VERSION=${{ github.event.inputs.version }}
         set ARCH=x86
-        build.bat install
-        build.bat build
-        build.bat package
+        build.bat install && build.bat build && build.bat package
       shell: cmd
 
     - name: Generate artifacts
