@@ -3,6 +3,8 @@
 This repo is fork from <https://github.com/dtschan/vim-static>,
 to be used in docker.
 
+[build.bat](build.bat) is from <https://github.com/vim/vim-win32-installer>
+
 ## example build step
 
 ```sh
