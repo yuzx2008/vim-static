@@ -91,6 +91,7 @@ rem c:\cygwin64\bin\bash -lc "sed -i -e /VIM_VERSION_PATCHLEVEL/s/0/$(sed -n -e 
 :: Remove progress bar from the build log
 rem sed -e "s/@<<$/@<< | sed -e 's#.*\\\\r.*##'/" Make_mvc.mak > Make_mvc2.mak
 :: Build GUI version
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
 nmake -f Make_mvc2.mak ^
 	GUI=yes OLE=no DIRECTX=yes ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
@@ -119,6 +120,7 @@ goto :eof
 :package_x64
 :: ----------------------------------------------------------------------
 @echo on
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
 cd vim\src
 
 mkdir GvimExt64
@@ -154,19 +156,6 @@ copy /Y winpty* ..\..\
 set dir=vim%APPVEYOR_REPO_TAG_NAME:~1,1%%APPVEYOR_REPO_TAG_NAME:~3,1%
 mkdir ..\vim\%dir%
 xcopy ..\runtime ..\vim\%dir% /Y /E /V /I /H /R /Q
-
-@echo off
-goto :eof
-
-
-:test_x86
-:test_x64
-:: ----------------------------------------------------------------------
-@echo on
-cd vim\src\testdir
-nmake -f Make_dos.mak VIMPROG=..\gvim || exit 1
-nmake -f Make_dos.mak clean
-nmake -f Make_dos.mak VIMPROG=..\vim || exit 1
 
 @echo off
 goto :eof
