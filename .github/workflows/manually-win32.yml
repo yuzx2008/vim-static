@@ -28,6 +28,7 @@ jobs:
         build.bat install
         build.bat build
         build.bat package
+      shell: cmd
 
     - name: Generate artifacts
       run: '7z a vim-${{ github.event.inputs.version }}-win32.7z vim\vim'
