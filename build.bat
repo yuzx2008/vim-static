@@ -92,13 +92,13 @@ rem c:\cygwin64\bin\bash -lc "sed -i -e /VIM_VERSION_PATCHLEVEL/s/0/$(sed -n -e 
 rem sed -e "s/@<<$/@<< | sed -e 's#.*\\\\r.*##'/" Make_mvc.mak > Make_mvc2.mak
 :: Build GUI version
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
-nmake -f Make_mvc2.mak ^
+nmake -f Make_mvc.mak ^
 	GUI=yes OLE=no DIRECTX=yes ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
 	|| exit 1
 :: Build CUI version
-nmake -f Make_mvc2.mak ^
+nmake -f Make_mvc.mak ^
 	GUI=no OLE=no DIRECTX=no ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
