@@ -67,7 +67,7 @@ jobs:
 
     runs-on: windows-latest
     needs: version-detect
-    if: ${{ github.event.inputs.skip_win32 != '0' }}
+    if: ${{ github.event.inputs.skip_win32 == '0' }}
 
     steps:
     - name: Checkout repo
@@ -124,7 +124,7 @@ jobs:
         name: vim-linux
 
     - name: Download win32
-      if: ${{ github.event.inputs.skip_win32 != '0' }}
+      if: ${{ github.event.inputs.skip_win32 == '0' }}
       uses: actions/download-artifact@v2
       with:
         name: vim-win32
@@ -140,7 +140,7 @@ jobs:
         asset_content_type: application/x-tar
 
     - name: Upload Release Asset win32
-      if: ${{ github.event.inputs.skip_win32 != '0' }}
+      if: ${{ github.event.inputs.skip_win32 == '0' }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
