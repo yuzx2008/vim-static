@@ -30,14 +30,15 @@ jobs:
 
     - name: Share version
       uses: actions/upload-artifact@v2
-        with:
-          name: ver
-          path: latest.txt
+      with:
+        name: ver
+        path: latest.txt
 
   build-linux:
 
     runs-on: ubuntu-latest
 
+    steps:
     - name: Checkout repo
       uses: actions/checkout@v2
 
@@ -54,9 +55,9 @@ jobs:
 
     - name: Upload binary
       uses: actions/upload-artifact@v2
-        with:
-          name: vim-linux
-          path: vim-linux-x64.tar.xz
+      with:
+        name: vim-linux
+        path: vim-linux-x64.tar.xz
 
   build-win32:
 
@@ -80,14 +81,15 @@ jobs:
 
     - name: Upload binary
       uses: actions/upload-artifact@v2
-        with:
-          name: vim-win32
-          path: vim-win32-x86.7z
+      with:
+        name: vim-win32
+        path: vim-win32-x86.7z
 
   release:
 
     runs-on: ubuntu-latest
 
+    steps:
     - name: Download version
       uses: actions/download-artifact@v2
       with:
