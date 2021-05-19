@@ -105,6 +105,7 @@ jobs:
         release_name: Package ${{ steps.latest-ver-get.outputs.latest }}
         draft: false
         prerelease: false
+        body: Package ${{ steps.latest-ver-get.outputs.latest }}
 
     - name: Download linux
       uses: actions/download-artifact@v2
