@@ -15,7 +15,7 @@ if /I "%ARCH%"=="x64" (
 :: TODO
 set VIM_URL=https://github.com/vim/vim/archive/%VIM_VERSION%.zip
 :: winpty
-set WINPTY_URL=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msvc2015.zip
+set WINPTY_URL=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz
 
 :: Subsystem version (targeting Windows XP)
 set SUBSYSTEM_VER32=5.01
@@ -47,15 +47,12 @@ move vim-* vim-src
 if not exist downloads mkdir downloads
 
 :: Install winpty
-call :downloadfile %WINPTY_URL% downloads\winpty.zip
-7z x -y downloads\winpty.zip -oc:\winpty > nul || exit 1
-if /i "%ARCH%"=="x64" (
-	copy /Y c:\winpty\x64_xp\bin\winpty.dll        vim-src\src\winpty64.dll
-	copy /Y c:\winpty\x64_xp\bin\winpty-agent.exe  vim-src\src\
-) else (
-	copy /Y c:\winpty\ia32_xp\bin\winpty.dll       vim-src\src\winpty32.dll
-	copy /Y c:\winpty\ia32_xp\bin\winpty-agent.exe vim-src\src\
-)
+call :downloadfile %WINPTY_URL% downloads\winpty.tar.gz
+md c:\winpty
+tar xf downloads\winpty.tar.gz -C c:\winpty || exit 1
+:: ignore x64
+copy /Y c:\winpty\winpty-*\bin\winpty.dll vim-src\src\winpty32.dll
+copy /Y c:\winpty\winpty-*\bin\winpty-agent.exe vim-src\src\
 
 :: Show PATH for debugging
 path
