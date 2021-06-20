@@ -118,7 +118,7 @@ jobs:
         tag_name: ${{ steps.latest-ver-get.outputs.latest }}
         release_name: Package ${{ steps.latest-ver-get.outputs.latest }}
         draft: false
-        prerelease: false
+        prerelease: true
         body: ${{ github.event.inputs.reason }}
 
     - name: Download linux
