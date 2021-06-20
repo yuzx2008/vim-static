@@ -49,10 +49,10 @@ if not exist downloads mkdir downloads
 :: Install winpty
 call :downloadfile %WINPTY_URL% downloads\winpty.tar.gz
 md c:\winpty
-tar xf downloads\winpty.tar.gz -C c:\winpty || exit 1
+tar --strip-components=1 -xf downloads\winpty.tar.gz -C c:\winpty || exit 1
 :: ignore x64
-copy /Y c:\winpty\winpty-*\bin\winpty.dll vim-src\src\winpty32.dll
-copy /Y c:\winpty\winpty-*\bin\winpty-agent.exe vim-src\src\
+copy /Y c:\winpty\bin\winpty.dll vim-src\src\winpty32.dll
+copy /Y c:\winpty\bin\winpty-agent.exe vim-src\src\
 
 :: Show PATH for debugging
 path
