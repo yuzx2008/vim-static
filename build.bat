@@ -80,14 +80,14 @@ nmake -f Make_mvc.mak ^
 	GUI=yes OLE=no DIRECTX=yes ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
-        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
+        LUA=%LUA_DIR% ^
 	|| exit 1
 :: Build CUI version
 nmake -f Make_mvc.mak ^
 	GUI=no OLE=no DIRECTX=no ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
-        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
+        LUA=%LUA_DIR% ^
 	|| exit 1
 
 :check_executable
