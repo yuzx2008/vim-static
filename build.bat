@@ -3,12 +3,6 @@
 
 setlocal ENABLEDELAYEDEXPANSION
 
-if /I "%ARCH%"=="x64" (
-	set BIT=64
-) else (
-	set BIT=32
-)
-
 :: ----------------------------------------------------------------------
 :: Download URLs, local dirs and versions
 :: vim
@@ -16,11 +10,13 @@ if /I "%ARCH%"=="x64" (
 set VIM_URL=https://github.com/vim/vim/archive/%VIM_VERSION%.zip
 :: winpty
 set WINPTY_URL=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz
+:: Lua
+set LUA_VER=54
+set LUA_URL=https://downloads.sourceforge.net/luabinaries/lua-5.4.2_Win32_dllw6_lib.zip
+set LUA_DIR=C:\Lua
 
 :: Subsystem version (targeting Windows XP)
-set SUBSYSTEM_VER32=5.01
-set SUBSYSTEM_VER64=5.02
-set SUBSYSTEM_VER=!SUBSYSTEM_VER%BIT%!
+set SUBSYSTEM_VER=5.01
 :: ----------------------------------------------------------------------
 
 if /I "%1"=="" (
@@ -29,13 +25,12 @@ if /I "%1"=="" (
 	set target=%1
 )
 
-goto %target%_%ARCH%
+goto %target%
 echo Unknown build target.
 exit 1
 
 
-:install_x86
-:install_x64
+:install
 :: ----------------------------------------------------------------------
 @echo on
 
@@ -54,6 +49,13 @@ tar --strip-components=1 -xf downloads\winpty.tar.gz -C c:\winpty || exit 1
 copy /Y c:\winpty\bin\winpty.dll vim-src\src\winpty32.dll
 copy /Y c:\winpty\bin\winpty-agent.exe vim-src\src\
 
+:: Lua
+call :downloadfile %LUA_URL% downloads\lua.zip
+7z x downloads\lua.zip -o%LUA_DIR% > nul || exit 1
+
+:: update path
+path %path%;%LUA_DIR%
+
 :: Show PATH for debugging
 path
 
@@ -61,8 +63,7 @@ path
 goto :eof
 
 
-:build_x86
-:build_x64
+:build
 :: ----------------------------------------------------------------------
 @echo on
 cd vim-src\src
@@ -70,11 +71,7 @@ cd vim-src\src
 :: Setting for targeting Windows XP
 set WinSdk71=%ProgramFiles(x86)%\Microsoft SDKs\Windows\v7.1A
 set INCLUDE=%WinSdk71%\Include;%INCLUDE%
-if /i "%ARCH%"=="x64" (
-	set "LIB=%WinSdk71%\Lib\x64;%LIB%"
-) else (
-	set "LIB=%WinSdk71%\Lib;%LIB%"
-)
+set "LIB=%WinSdk71%\Lib;%LIB%"
 set CL=/D_USING_V110_SDK71_
 
 :: Build GUI version
@@ -83,12 +80,14 @@ nmake -f Make_mvc.mak ^
 	GUI=yes OLE=no DIRECTX=yes ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
+        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
 	|| exit 1
 :: Build CUI version
 nmake -f Make_mvc.mak ^
 	GUI=no OLE=no DIRECTX=no ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
+        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
 	|| exit 1
 
 :check_executable
@@ -103,29 +102,11 @@ type if_ver.txt
 goto :eof
 
 
-:package_x86
-:package_x64
+:package
 :: ----------------------------------------------------------------------
 @echo on
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
 cd vim-src\src
-
-mkdir GvimExt64
-mkdir GvimExt32
-:: Build both 64- and 32-bit versions of gvimext.dll for the installer
-start /wait cmd /c ""C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 && cd GvimExt && nmake CPU=AMD64 clean all > ..\gvimext.log"
-type gvimext.log
-copy GvimExt\gvimext.dll   GvimExt\gvimext64.dll
-move GvimExt\gvimext.dll   GvimExt64\gvimext.dll
-copy /Y GvimExt\README.txt GvimExt64\
-copy /Y GvimExt\*.inf      GvimExt64\
-copy /Y GvimExt\*.reg      GvimExt64\
-start /wait cmd /c ""C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86 && cd GvimExt && nmake CPU=i386 clean all > ..\gvimext.log"
-type gvimext.log
-copy GvimExt\gvimext.dll   GvimExt32\gvimext.dll
-copy /Y GvimExt\README.txt GvimExt32\
-copy /Y GvimExt\*.inf      GvimExt32\
-copy /Y GvimExt\*.reg      GvimExt32\
 
 :: Create zip packages
 copy /Y ..\README.txt ..\runtime
@@ -133,10 +114,6 @@ copy /Y ..\vimtutor.bat ..\runtime
 copy /Y *.exe ..\runtime\
 copy /Y xxd\*.exe ..\runtime
 copy /Y tee\*.exe ..\runtime
-mkdir ..\runtime\GvimExt64
-mkdir ..\runtime\GvimExt32
-copy /Y GvimExt64\*.*                    ..\runtime\GvimExt64\
-copy /Y GvimExt32\*.*                    ..\runtime\GvimExt32\
 copy /Y ..\..\diff.exe ..\runtime\
 copy /Y winpty* ..\runtime\
 copy /Y winpty* ..\..\

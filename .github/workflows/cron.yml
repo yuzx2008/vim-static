@@ -70,7 +70,6 @@ jobs:
     - name: Build the package
       run: |
         set /p VIM_VERSION=<latest.txt
-        set ARCH=x86
         build.bat install && build.bat build && build.bat package && 7z a vim-win32-x86.7z vim
       shell: cmd
 

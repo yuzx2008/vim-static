@@ -1,6 +1,6 @@
 # this file is derived from build.sh
 
-FROM alpine:3.13
+FROM alpine:3.14
 
 WORKDIR /root
 
@@ -8,6 +8,7 @@ WORKDIR /root
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.bfsu.edu.cn/g' /etc/apk/repositories
 
 RUN apk add gcc make musl-dev ncurses-static
+RUN apk add lua5.4 lua5.4-dev
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -24,7 +25,7 @@ RUN cd vim-* && \
         --disable-xsmp \
         --enable-gpm \
         --enable-multibyte \
-        --enable-python3interp=dynamic \
+        --enable-luainterp=yes \
         --with-compiledby='GitHub Actions' \
         --with-features=huge \
         --with-tlib=ncursesw \
