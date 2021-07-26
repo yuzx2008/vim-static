@@ -8,7 +8,7 @@ WORKDIR /root
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.bfsu.edu.cn/g' /etc/apk/repositories
 
 RUN apk add gcc make musl-dev ncurses-static
-RUN apk add lua5.4 lua5.4-dev
+RUN apk add lua5.1 lua5.1-dev
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz

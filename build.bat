@@ -11,8 +11,8 @@ set VIM_URL=https://github.com/vim/vim/archive/%VIM_VERSION%.zip
 :: winpty
 set WINPTY_URL=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz
 :: Lua
-set LUA_VER=54
-set LUA_URL=https://downloads.sourceforge.net/luabinaries/lua-5.4.2_Win32_dllw6_lib.zip
+set LUA_VER=51
+set LUA_URL=https://downloads.sourceforge.net/luabinaries/lua-5.1.5_Win32_dllw4_lib.zip
 set LUA_DIR=C:\Lua
 
 :: Subsystem version (targeting Windows XP)
