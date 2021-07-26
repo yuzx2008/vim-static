@@ -118,7 +118,7 @@ copy /Y tee\*.exe ..\runtime
 copy /Y ..\..\diff.exe ..\runtime\
 copy /Y winpty* ..\runtime\
 copy /Y winpty* ..\..\
-copy /Y lua*.dll ..\runtime\
+copy /Y lua*.dll ..\runtime\lua%LUA_VER%.dll
 rem vim v8.2.0001 -> v82
 set dir=vim%VIM_VERSION:~1,1%%VIM_VERSION:~3,1%
 mkdir ..\..\vim\%dir%
