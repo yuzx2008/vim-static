@@ -10,10 +10,6 @@ setlocal ENABLEDELAYEDEXPANSION
 set VIM_URL=https://github.com/vim/vim/archive/%VIM_VERSION%.zip
 :: winpty
 set WINPTY_URL=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz
-:: Lua
-set LUA_VER=51
-set LUA_URL=https://downloads.sourceforge.net/luabinaries/lua-5.1.5_Win32_dllw4_lib.zip
-set LUA_DIR=C:\Lua
 
 :: Subsystem version (targeting Windows XP)
 set SUBSYSTEM_VER=5.01
@@ -49,14 +45,6 @@ tar --strip-components=1 -xf downloads\winpty.tar.gz -C c:\winpty || exit 1
 copy /Y c:\winpty\bin\winpty.dll vim-src\src\winpty32.dll
 copy /Y c:\winpty\bin\winpty-agent.exe vim-src\src\
 
-:: Lua
-call :downloadfile %LUA_URL% downloads\lua.zip
-7z x downloads\lua.zip -o%LUA_DIR% > nul || exit 1
-copy /Y %LUA_DIR%\lua*.dll vim-src\src\
-
-:: update path
-path %path%;%LUA_DIR%
-
 :: Show PATH for debugging
 path
 
@@ -81,14 +69,12 @@ nmake -f Make_mvc.mak ^
 	GUI=yes OLE=no DIRECTX=yes ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
-        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
 	|| exit 1
 :: Build CUI version
 nmake -f Make_mvc.mak ^
 	GUI=no OLE=no DIRECTX=no ^
 	FEATURES=HUGE IME=yes MBYTE=yes ICONV=no DEBUG=no ^
 	TERMINAL=yes ^
-        DYNAMIC_LUA=yes LUA=%LUA_DIR% ^
 	|| exit 1
 
 :check_executable
@@ -118,7 +104,6 @@ copy /Y tee\*.exe ..\runtime
 copy /Y ..\..\diff.exe ..\runtime\
 copy /Y winpty* ..\runtime\
 copy /Y winpty* ..\..\
-copy /Y /B /V lua*.dll ..\runtime\lua%LUA_VER%.dll
 rem vim v8.2.0001 -> v82
 set dir=vim%VIM_VERSION:~1,1%%VIM_VERSION:~3,1%
 mkdir ..\..\vim\%dir%
