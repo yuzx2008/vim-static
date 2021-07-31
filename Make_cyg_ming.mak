@@ -48,7 +48,9 @@ COVERAGE=no
 OPTIMIZE=MAXSPEED
 
 # set to yes to make gvim, no for vim
+ifndef GUI
 GUI=yes
+endif
 
 # set to yes to enable the DLL support (EXPERIMENTAL).
 # Creates vim{32,64}.dll, and stub gvim.exe and vim.exe.
@@ -68,7 +70,7 @@ DIRECTX=yes
 # If not set, it will be automatically detected. (Normally i686 or x86-64.)
 #ARCH=i686
 # Set to yes to cross-compile from unix; no=native Windows (and Cygwin).
-CROSS=no
+CROSS=yes
 
 # Set to path to iconv.h and libiconv.a to enable using 'iconv.dll'.
 # Use "yes" when the path does not need to be define.
@@ -93,10 +95,10 @@ WINVER = 0x0600
 endif
 
 # Set to yes to enable Cscope support.
-CSCOPE=yes
+CSCOPE=no
 
 # Set to yes to enable Netbeans support (requires CHANNEL).
-NETBEANS=$(GUI)
+NETBEANS=no
 
 # Set to yes to enable inter process communication.
 ifeq (HUGE, $(FEATURES))
@@ -1039,8 +1041,8 @@ endif
 ifeq (yes, $(USE_STDCPLUS))
 LINK = $(CXX)
  ifeq (yes, $(STATIC_STDCPLUS))
-#LIB += -static-libstdc++ -static-libgcc
-LIB += -Wl,-Bstatic -lstdc++ -lgcc -Wl,-Bdynamic
+LIB += -static-libstdc++ -static-libgcc
+#LIB += -Wl,-Bstatic -lstdc++ -lgcc -Wl,-Bdynamic
  endif
 else
 LINK = $(CC)

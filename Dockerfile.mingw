@@ -1,0 +1,39 @@
+# vim:ft=dockerfile
+
+FROM fedora
+
+WORKDIR /root
+
+RUN dnf install -y gcc make mingw32-gcc mingw32-windows-default-manifest mingw32-gcc-c++ mingw32-winpthreads-static
+
+ARG VIM_VERSION=v7.2
+RUN curl -LO https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
+RUN tar xf ${VIM_VERSION}.tar.gz
+
+COPY Make_cyg_ming.mak vim-*/src/
+
+RUN cd vim-*/src && \
+        WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        make -f Make_ming.mak gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
+        WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        GUI=no make -f Make_ming.mak vim.exe && \
+        mv gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe vim.exe ../runtime
+
+RUN mkdir -p /out/vim
+RUN cp -r vim-*/runtime /out/vim
+
+# winpty
+RUN curl https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
+RUN tar --strip-components=1 -xf winpty.tar.gz
+RUN cp bin/winpty.dll /out/vim/runtime/winpty32.dll
+RUN cp bin/winpty-agent.exe /out/vim/runtime/
+
+WORKDIR /out/vim
+
+# mv runtime vim82
+RUN mv runtime vim$(printf %s "${VIM_VERSION}" | sed -nE 's/^v(.).(.).*$/\1\2/p')
+
+RUN dnf install -y p7zip
+RUN cd /out && 7z a vim-${VIM_VERSION}.7z vim
+
+RUN echo 'run `docker run --rm -i NAME-OF-THIS-IMAGE cat /out/vim-${VIM_VERSION}.7z > OUTPUT-FILENAME.7z` to get result file.'
