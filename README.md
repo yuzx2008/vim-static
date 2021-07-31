@@ -25,4 +25,3 @@ vim minimum required version:
 |plugin|version|reason|
 |---|---|---|
 |[vim-plug](https://github.com/junegunn/vim-plug) | 7.2.051 | globpath |
-|[vim-shell.vim](https://github.com/Shougo/vimshell.vim) | 7.3 | |

@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'vim tagname to build'
-        required: true
-        default: 'v7.2'
+        description: 'vim tagname to build (example: v7.2; leave empty for latest)'
+        required: false
       reason:
         description: 'why building this version manually (shown in release note)'
         required: true
@@ -22,7 +21,13 @@ jobs:
 
     steps:
     - name: Detect latest stable version
-      run: echo '${{ github.event.inputs.version }}' > latest.txt
+      run: >-
+        latest='${{ github.event.inputs.version }}'
+        # fix hl '
+        if [ -z "$latest" ]; then
+          latest=$(curl -s 'https://api.github.com/repos/vim/vim/tags' | jq -r '.[0].name')
+        fi
+        echo "$latest" > latest.txt
 
     - name: Gather all tagged version
       run: curl -Ls https://api.github.com/repos/lxhillwind/vim-bin/releases | jq -r '.[].tag_name' | sort > tagged.txt
