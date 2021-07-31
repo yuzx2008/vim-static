@@ -12,6 +12,9 @@ RUN tar xf ${VIM_VERSION}.tar.gz
 
 COPY Make_cyg_ming.mak .
 
+# windres tweak
+RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/i686-w64-mingw32-windres "$@"' > /usr/local/bin/windres && chmod +x /usr/local/bin/windres
+
 RUN cd vim-*/src && \
         cp ../../Make_cyg_ming.mak ./ && \
         WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
