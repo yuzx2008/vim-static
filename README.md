@@ -15,11 +15,13 @@ For win32,
 <https://github.com/vim/vim/blob/master/src/INSTALLpc.txt>
 )
 
-## example build step (for linux)
+## example build step
 
 ```sh
+# linux build
 docker build --build-arg VIM_VERSION=v8.2.2845 -t build-vim-8 .
 
+# win32 x86 build
 docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw -t build-vim-8-win32 .
 ```
 
