@@ -27,7 +27,7 @@ RUN mkdir -p /out/vim
 RUN cp -r vim-*/runtime /out/vim
 
 # winpty
-RUN curl https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
+RUN curl -L https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
 RUN tar --strip-components=1 -xf winpty.tar.gz
 RUN cp bin/winpty.dll /out/vim/runtime/winpty32.dll
 RUN cp bin/winpty-agent.exe /out/vim/runtime/
