@@ -10,9 +10,10 @@ ARG VIM_VERSION=v7.2
 RUN curl -LO https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
 RUN tar xf ${VIM_VERSION}.tar.gz
 
-COPY Make_cyg_ming.mak vim-*/src/
+COPY Make_cyg_ming.mak .
 
 RUN cd vim-*/src && \
+        cp ../../Make_cyg_ming.mak ./ && \
         WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
         make -f Make_ming.mak gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
         WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
