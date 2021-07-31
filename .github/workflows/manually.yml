@@ -10,7 +10,7 @@ on:
         description: 'why building this version manually (shown in release note)'
         required: true
       skip_win32:
-        description: 'early vim does not support vs2019 (1: skip; 0: build)'
+        description: 'Make_cyg_ming.mak in early version vim needs tweak (1: skip; 0: build)'
         required: true
 
 jobs:
