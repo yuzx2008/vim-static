@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Detect latest stable version
-      run: >-
+      run: |-
         latest='${{ github.event.inputs.version }}'
         # fix hl '
         if [ -z "$latest" ]; then
