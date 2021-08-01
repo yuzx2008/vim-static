@@ -28,6 +28,8 @@ RUN cd vim-* && \
         --with-features=huge \
         --with-tlib=ncursesw \
         --without-x \
+        && sed -E -i 's#.*HAVE_DLOPEN.*#/* & */#' src/auto/config.h \
+        && sed -E -i 's#.*HAVE_DLSYM.*#/* & */#' src/auto/config.h \
         && make && make install
 
 RUN mkdir -p /out/vim
