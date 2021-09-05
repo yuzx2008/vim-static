@@ -1,10 +1,16 @@
 # vim:ft=dockerfile
 
-FROM fedora
+# specify architecture.
+FROM i386/alpine
+ARG ARCH=i686
+
+#FROM alpine
+#ARG ARCH=x86_64
+
 
 WORKDIR /root
 
-RUN dnf install -y gcc make mingw32-gcc mingw32-windows-default-manifest mingw32-gcc-c++ mingw32-winpthreads-static
+RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 
 ARG VIM_VERSION=v7.2
 RUN curl -LO https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -13,24 +19,20 @@ RUN tar xf ${VIM_VERSION}.tar.gz
 COPY Make_cyg_ming.mak .
 
 # windres tweak
-RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/i686-w64-mingw32-windres "$@"' > /usr/local/bin/windres && chmod +x /usr/local/bin/windres
+RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/$ARCH-w64-mingw32-windres "$@"' > /usr/local/bin/windres && chmod +x /usr/local/bin/windres
 
+# `echo $ARCH | tr _ -`: x86_64 -> x86-64.
 RUN cd vim-*/src && \
         cp ../../Make_cyg_ming.mak ./ && \
-        WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=no \
         make -f Make_ming.mak gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
-        WINVER=0x0501 ARCH=i686 CROSS_COMPILE=i686-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=no \
         GUI=no make -f Make_ming.mak vim.exe && \
-        mv gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe vim.exe ../runtime
+        mv gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe vim.exe ../runtime && \
+        cp /usr/$ARCH-w64-mingw32/bin/libwinpthread-1.dll ../runtime
 
 RUN mkdir -p /out/vim
 RUN cp -r vim-*/runtime /out/vim
-
-# winpty
-RUN curl -L https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
-RUN tar --strip-components=1 -xf winpty.tar.gz
-RUN cp bin/winpty.dll /out/vim/runtime/winpty32.dll
-RUN cp bin/winpty-agent.exe /out/vim/runtime/
 
 WORKDIR /out/vim
 
