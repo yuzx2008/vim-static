@@ -79,12 +79,6 @@ jobs:
         name: vim-win32
         path: vim-win32-x86.7z
 
-    - name: Checksum
-      id: checksum
-      run: |
-        printf '::set-output name=linux-x64::%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1);
-        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty');
-
   release:
 
     runs-on: ubuntu-latest
@@ -96,9 +90,25 @@ jobs:
       with:
         name: ver
 
+    - name: Download linux
+      uses: actions/download-artifact@v2
+      with:
+        name: vim-linux
+
+    - name: Download win32
+      uses: actions/download-artifact@v2
+      with:
+        name: vim-win32
+
     - name: Set version
       id: latest-ver-get
       run: printf '::set-output name=latest::%s\n' $(cat latest.txt)
+
+    - name: Checksum
+      id: checksum
+      run: |
+        printf '::set-output name=linux-x64::%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1);
+        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty');
 
     - name: Create Release
       id: create_release
@@ -117,16 +127,6 @@ jobs:
 
           - ${{ steps.checksum.outputs.linux-x64 }} vim-linux-x64.tar.xz
           - ${{ steps.checksum.outputs.win32-x86 }} vim-win32-x86.7z
-
-    - name: Download linux
-      uses: actions/download-artifact@v2
-      with:
-        name: vim-linux
-
-    - name: Download win32
-      uses: actions/download-artifact@v2
-      with:
-        name: vim-win32
 
     - name: Upload Release Asset linux
       uses: actions/upload-release-asset@v1
