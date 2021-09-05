@@ -114,6 +114,12 @@ jobs:
       id: latest-ver-get
       run: printf '::set-output name=latest::%s\n' $(cat latest.txt)
 
+    - name: Checksum
+      id: checksum
+      run: |
+        printf '::set-output name=linux-x64::%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1);
+        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'not compiled.');
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -124,7 +130,13 @@ jobs:
         release_name: Package ${{ steps.latest-ver-get.outputs.latest }}
         draft: false
         prerelease: true
-        body: ${{ github.event.inputs.reason }}
+        body: |
+          ${{ github.event.inputs.reason }}
+
+        sha1sum:
+
+        - vim-linux-x64.tar.xz: ${{ steps.checksum.outputs.linux-x64 }}
+        - vim-win32-x86.7z: ${{ steps.checksum.outputs.win32-x86 }}
 
     - name: Download linux
       uses: actions/download-artifact@v2
