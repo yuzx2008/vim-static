@@ -15,6 +15,27 @@ For win32,
 <https://github.com/vim/vim/blob/master/src/INSTALLpc.txt>
 )
 
+## note for Windows
+
+winpty is not included; download it manually from
+<https://github.com/rprichard/winpty/releases>.
+
+```sh
+# example for x86:
+curl -L https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
+tar --strip-components=1 -xf winpty.tar.gz
+cp bin/winpty.dll $VIMRUNTIME/winpty32.dll
+cp bin/winpty-agent.exe $VIMRUNTIME/
+```
+
+### note for Windows XP
+
+`vim/vim82/libwinpthread-1.dll` in win32 build comes from Alpine Linux (pkg:
+mingw-w64-winpthreads), and it does not work in Windows XP.
+
+To fix it, just download it from other distribution's package, like Fedora 34
+(pkg: mingw32-winpthreads), and replace the file.
+
 ## example build step
 
 ```sh
