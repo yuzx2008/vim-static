@@ -135,8 +135,8 @@ jobs:
 
           sha1sum:
 
-          - vim-linux-x64.tar.xz: ${{ steps.checksum.outputs.linux-x64 }}
-          - vim-win32-x86.7z: ${{ steps.checksum.outputs.win32-x86 }}
+          - ${{ steps.checksum.outputs.linux-x64 }} vim-linux-x64.tar.xz
+          - ${{ steps.checksum.outputs.win32-x86 }} vim-win32-x86.7z
 
     - name: Download linux
       uses: actions/download-artifact@v2
