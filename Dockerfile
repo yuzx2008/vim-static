@@ -1,6 +1,6 @@
 # this file is derived from build.sh
 
-FROM alpine:3.14
+FROM alpine
 
 WORKDIR /root
 
