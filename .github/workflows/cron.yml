@@ -2,7 +2,7 @@ name: Build Auto
 
 on:
   schedule:
-  - cron: '0 0 * * *'
+  - cron: '0 0 1 * *'
 
 jobs:
 
@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Detect latest stable version
-      run: printf 'v%s\n' "$(curl -Ls https://archlinux.org/packages/extra/x86_64/vim/json/ | jq -r .pkgver)" > latest.txt
+      run: printf 'v%s\n' "$(curl -Ls https://api.github.com/repos/vim/vim/tags | jq '.[0].name' -r)" > latest.txt
 
     - name: Gather all tagged version
       run: curl -Ls https://api.github.com/repos/lxhillwind/vim-bin/releases | jq -r '.[].tag_name' | sort > tagged.txt

@@ -1,5 +1,19 @@
 # vim:ft=dockerfile
 
+# build winpthreads working for Windows XP.
+FROM i386/alpine as winpthreads
+ARG ARCH=i686
+WORKDIR /root
+RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
+
+RUN apk add p7zip
+RUN wget -O winpthreads-master.zip https://github.com/lxhillwind/winpthreads/archive/refs/heads/master.zip
+RUN 7z x winpthreads-master.zip && \
+    cd winpthreads-master && \
+    ./configure --prefix=/usr/i686-w64-mingw32 --host=i686-w64-mingw32 --enable-static CFLAGS='-D_WIN32_WINNT=0x0501' CC=i686-w64-mingw32-gcc && \
+    make && make install
+
+
 # specify architecture.
 FROM i386/alpine
 ARG ARCH=i686
@@ -7,10 +21,10 @@ ARG ARCH=i686
 #FROM alpine
 #ARG ARCH=x86_64
 
-
 WORKDIR /root
-
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
+
+COPY --from=winpthreads /usr/i686-w64-mingw32/lib/libwinpthread.a /usr/i686-w64-mingw32/lib/libwinpthread.a
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -27,10 +41,9 @@ RUN cd vim-*/src && \
         sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak && \
-        env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=no \
+        env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
         make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
-        mv vim*.dll gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe /out/vim/ && \
-        cp /usr/$ARCH-w64-mingw32/bin/libwinpthread-1.dll /out/vim/
+        mv vim*.dll gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe /out/vim/
 
 RUN cp -r vim-*/runtime /out/vim
 

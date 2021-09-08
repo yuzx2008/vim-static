@@ -28,14 +28,6 @@ cp bin/winpty.dll $VIMRUNTIME/winpty32.dll
 cp bin/winpty-agent.exe $VIMRUNTIME/
 ```
 
-### note for Windows XP
-
-`vim/vim82/libwinpthread-1.dll` in win32 build comes from Alpine Linux (pkg:
-mingw-w64-winpthreads), and it does not work in Windows XP.
-
-To fix it, just download it from other distribution's package, like Fedora 34
-(pkg: mingw32-winpthreads), and replace the file.
-
 ## example build step
 
 ```sh
