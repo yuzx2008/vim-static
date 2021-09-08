@@ -9,6 +9,8 @@ WORKDIR /root
 
 RUN apk add gcc make musl-dev ncurses-static
 
+RUN mkdir -p /out/vim
+
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
 RUN tar xf ${VIM_VERSION}.tar.gz
@@ -30,14 +32,15 @@ RUN cd vim-* && \
         --without-x \
         && sed -E -i 's#.*HAVE_DLOPEN.*#/* & */#' src/auto/config.h \
         && sed -E -i 's#.*HAVE_DLSYM.*#/* & */#' src/auto/config.h \
-        && make && make install
+        && make && make install \
+        && cp -r runtime /out/vim/
 
-RUN mkdir -p /out/vim
-RUN cp -r /usr/local/* /out/vim
+RUN mkdir -p /out/vim/bin && \
+    cp /usr/local/bin/vim /out/vim/bin/ && \
+    cp /usr/local/bin/xxd /out/vim/bin/
 
 # set $VIM in entrypoint, otherwise you need to set $VIM manually.
-RUN cd /out/vim/share/vim && ln -s vim* vim-current
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh -e' 'cwd="$(dirname "$(realpath "$0")")"' 'exec env VIM="$cwd"/share/vim/vim-current "$cwd"/bin/vim "$@"' > /out/vim/AppRun && chmod +x /out/vim/AppRun
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh -e' 'export VIM="$(dirname "$(realpath "$0")")"' 'exec "$VIM"/bin/vim "$@"' > /out/vim/AppRun && chmod +x /out/vim/AppRun
 
 RUN strip /out/vim/bin/vim
 RUN chown -R $(id -u):$(id -g) /out/vim

@@ -16,28 +16,23 @@ ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
 RUN tar xf ${VIM_VERSION}.tar.gz
 
-COPY Make_cyg_ming.mak .
+RUN mkdir -p /out/vim
 
 # windres tweak
 RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/'$ARCH'-w64-mingw32-windres "$@"' > /usr/local/bin/windres && chmod +x /usr/local/bin/windres
 
 # `echo $ARCH | tr _ -`: x86_64 -> x86-64.
 RUN cd vim-*/src && \
-        cp ../../Make_cyg_ming.mak ./ && \
+        sed -i -E 's/^CROSS=.+/CROSS=yes/' Make_cyg_ming.mak && \
+        sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak && \
         env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=no \
-        make -f Make_ming.mak gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
-        env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=no \
-        GUI=no make -f Make_ming.mak vim.exe && \
-        mv vim*.dll gvim.exe tee/tee.exe xxd/xxd.exe vimrun.exe vim.exe ../runtime && \
-        cp /usr/$ARCH-w64-mingw32/bin/libwinpthread-1.dll ../runtime
+        make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
+        mv vim*.dll gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe /out/vim/ && \
+        cp /usr/$ARCH-w64-mingw32/bin/libwinpthread-1.dll /out/vim/
 
-RUN mkdir -p /out/vim
 RUN cp -r vim-*/runtime /out/vim
-
-WORKDIR /out/vim
-
-# mv runtime vim82
-RUN mv runtime vim$(printf %s "${VIM_VERSION}" | sed -nE 's/^v(.).(.).*$/\1\2/p')
 
 RUN apk add p7zip
 RUN cd /out && 7z a vim-${VIM_VERSION}.7z vim
