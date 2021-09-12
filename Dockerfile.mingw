@@ -40,6 +40,7 @@ RUN cd vim-*/src && \
         sed -i -E 's/^CROSS=.+/CROSS=yes/' Make_cyg_ming.mak && \
         sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak && \
         env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
         make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
