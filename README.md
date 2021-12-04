@@ -40,15 +40,6 @@ docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw -t build-vim-
 
 `VIM_VERSION` is tag name in <https://github.com/vim/vim>.
 
-
-## when builds failed...
-
-### mingw
-
-Check if `src/Make_cyg_ming.mak` in vim source code changed.
-
-TODO: generate [`Make_cyg_ming.mak`](Make_cyg_ming.mak) with configure.
-
 ## about legacy vim version
 
 vim minimum required version:
