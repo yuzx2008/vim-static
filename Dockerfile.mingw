@@ -8,8 +8,7 @@ RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 
 RUN apk add p7zip
 RUN wget -O winpthreads-master.zip https://github.com/lxhillwind/winpthreads/archive/refs/heads/master.zip
-RUN rm -rf winpthreads-master && \
-    7z x winpthreads-master.zip && \
+RUN 7z x winpthreads-master.zip && \
     cd winpthreads-master && \
     ./configure --prefix=/usr/i686-w64-mingw32 --host=i686-w64-mingw32 --enable-static CFLAGS='-D_WIN32_WINNT=0x0501' CC=i686-w64-mingw32-gcc && \
     make && make install
