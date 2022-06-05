@@ -6,10 +6,9 @@ ARG ARCH=i686
 WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 
-RUN apk add p7zip
-RUN wget -O winpthreads-master.zip https://github.com/lxhillwind/winpthreads/archive/refs/heads/master.zip
-RUN 7z x winpthreads-master.zip && \
-    cd winpthreads-master && \
+RUN apk add git
+RUN git clone https://github.com/lxhillwind/winpthreads
+RUN cd winpthreads && \
     ./configure --prefix=/usr/i686-w64-mingw32 --host=i686-w64-mingw32 --enable-static CFLAGS='-D_WIN32_WINNT=0x0501' CC=i686-w64-mingw32-gcc && \
     make && make install
 
