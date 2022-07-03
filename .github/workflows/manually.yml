@@ -8,10 +8,12 @@ on:
         required: false
       reason:
         description: 'why building this version manually (shown in release note)'
-        required: true
+        required: false
+        default: ''
       skip_win32:
         description: 'Make_cyg_ming.mak in early version vim needs tweak (1: skip; 0: build)'
-        required: true
+        required: false
+        default: 0
 
 jobs:
 
