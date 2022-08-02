@@ -1,0 +1,35 @@
+# vim:ft=dockerfile
+
+# specify architecture.
+FROM alpine
+ARG ARCH=x86_64
+
+WORKDIR /root
+RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
+
+ARG VIM_VERSION=v7.2
+RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
+RUN tar xf ${VIM_VERSION}.tar.gz
+
+RUN mkdir -p /out/vim
+
+# windres tweak
+RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/'$ARCH'-w64-mingw32-windres "$@"' > /usr/local/bin/windres && chmod +x /usr/local/bin/windres
+
+# `echo $ARCH | tr _ -`: x86_64 -> x86-64.
+RUN cd vim-*/src && \
+        sed -i -E 's/^CROSS=.+/CROSS=yes/' Make_cyg_ming.mak && \
+        sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
+        { if [ "$ARCH" = i686 ]; then sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak; fi; } && \
+        env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
+        mv vim*.dll gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe /out/vim/
+
+RUN cp -r vim-*/runtime /out/vim
+
+RUN apk add p7zip
+RUN cd /out && 7z a vim-${VIM_VERSION}.7z vim
+
+RUN echo 'run `docker run --rm -i NAME-OF-THIS-IMAGE cat /out/vim-${VIM_VERSION}.7z > OUTPUT-FILENAME.7z` to get result file.'

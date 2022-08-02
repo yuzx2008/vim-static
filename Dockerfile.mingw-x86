@@ -17,9 +17,6 @@ RUN cd winpthreads && \
 FROM i386/alpine
 ARG ARCH=i686
 
-#FROM alpine
-#ARG ARCH=x86_64
-
 WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 

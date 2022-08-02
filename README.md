@@ -2,7 +2,7 @@
 
 - linux: x64 static; do not depend on libc;
 
-- win32: x86; no OLE.
+- win32: x86 / x64; no OLE.
 
 For linux,
 [archive/build.sh](archive/build.sh) is from <https://github.com/dtschan/vim-static>,
@@ -11,7 +11,7 @@ For linux,
 For win32,
 [archive/build.bat](archive/build.bat) is from <https://github.com/vim/vim-win32-installer>.
 
-(But now I use [mingw](Dockerfile.mingw) to compile instead; instruction can be found in
+(But now I use [mingw 32bit](Dockerfile.mingw-x86) / [mingw 64bit](Dockerfile.mingw-x64) to compile instead; instruction can be found in
 <https://github.com/vim/vim/blob/master/src/INSTALLpc.txt>
 )
 
@@ -35,7 +35,7 @@ cp bin/winpty-agent.exe $VIMRUNTIME/
 docker build --build-arg VIM_VERSION=v8.2.2845 -t build-vim-8 .
 
 # win32 x86 build
-docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw -t build-vim-8-win32 .
+docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw-x86 -t build-vim-win32-x86 .
 ```
 
 `VIM_VERSION` is tag name in <https://github.com/vim/vim>.
