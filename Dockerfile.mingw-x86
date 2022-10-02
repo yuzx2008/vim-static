@@ -21,6 +21,7 @@ WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 
 COPY --from=winpthreads /usr/i686-w64-mingw32/lib/libwinpthread.a /usr/i686-w64-mingw32/lib/libwinpthread.a
+COPY xp.h /tmp/xp.h
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -33,10 +34,13 @@ RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/'$ARCH'-w64-mingw32-windres "$@
 
 # `echo $ARCH | tr _ -`: x86_64 -> x86-64.
 RUN cd vim-*/src && \
+        cp /tmp/xp.h ./ && \
         sed -i -E 's/^CROSS=.+/CROSS=yes/' Make_cyg_ming.mak && \
         sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
+        sed -i -E 's/.* iscygpty.c -o.*/& -U_WIN32_WINNT -D_WIN32_WINNT=0x0600 -DUSE_DYNFILEID -DENABLE_STUB_IMPL/' Make_cyg_ming.mak && \
+        sed -i -E 's/^CFLAGS = -I./& --include=xp.h/' Make_cyg_ming.mak && \
         { if [ "$ARCH" = i686 ]; then sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak; fi; } && \
         env VIMDLL=yes WINVER=0x0601 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
         make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
