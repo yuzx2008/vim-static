@@ -42,7 +42,14 @@ docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw-x86 -t build-
 
 ## about legacy vim version
 
-The newest version running on Windows XP: [v9.0.0495](https://github.com/lxhillwind/vim-bin/releases/tag/v9.0.0495).
+### Windows XP
+
+The (officially) newest version running on Windows XP: [v9.0.0495](https://github.com/lxhillwind/vim-bin/releases/tag/v9.0.0495).
+
+Version after it may work, but the compilation process requires patch (see
+[Dockerfile.mingw-x86](Dockerfile.mingw-x86)); otherwise it won't even compile.
+
+### plugin
 
 vim minimum required version:
 

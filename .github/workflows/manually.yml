@@ -187,7 +187,7 @@ jobs:
           sha1sum:
 
           - `${{ steps.checksum.outputs.linux-x64 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-linux-x64.tar.xz`
-          - `${{ steps.checksum.outputs.win32-x86 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-win32-x86.7z`
+          - `${{ steps.checksum.outputs.win32-x86 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-win32-x86.7z` (compiled for Windows XP; **USE AT YOUR OWN RISK!**)
           - `${{ steps.checksum.outputs.win32-x64 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-win32-x64.7z`
 
     - name: Upload Release Asset linux
