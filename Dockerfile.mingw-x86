@@ -33,16 +33,18 @@ RUN printf '%s\n%s\n' '#!/bin/sh' 'exec /usr/bin/'$ARCH'-w64-mingw32-windres "$@
 
 # `echo $ARCH | tr _ -`: x86_64 -> x86-64.
 RUN cd vim-*/src && \
-        sed -i '1 i#define GetFinalPathNameByHandleW(a, b, c, d) 0' os_mswin.c && \
-        sed -i '1 i#define GetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
-        sed -i '1 i#define SetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
         sed -i -E 's/^CROSS=.+/CROSS=yes/' Make_cyg_ming.mak && \
         sed -i -E 's/^CSCOPE=.+/CSCOPE=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
+    { if [ "$ARCH" = i686 ]; then \
+        sed -i '1 i#define GetFinalPathNameByHandleW(a, b, c, d) 0' os_mswin.c && \
+        sed -i '1 i#define GetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
+        sed -i '1 i#define SetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
         sed -i -E 's/.* iscygpty.c -o.*/& -U_WIN32_WINNT -D_WIN32_WINNT=0x0600 -DUSE_DYNFILEID -DENABLE_STUB_IMPL/' Make_cyg_ming.mak && \
-        { if [ "$ARCH" = i686 ]; then sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak; fi; } && \
-        env VIMDLL=yes WINVER=0x0501 ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
+        sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak; \
+    fi; } && \
+        env VIMDLL=yes WINVER=$(if [ "$ARCH" = i686 ]; then echo 0x0501; else echo 0x0601; fi) ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
         make -f Make_ming.mak gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe && \
         mv vim*.dll gvim.exe vim.exe tee/tee.exe xxd/xxd.exe vimrun.exe /out/vim/
 
