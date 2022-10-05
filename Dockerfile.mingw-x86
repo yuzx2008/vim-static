@@ -21,6 +21,7 @@ WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
 
 COPY --from=winpthreads /usr/i686-w64-mingw32/lib/libwinpthread.a /usr/i686-w64-mingw32/lib/libwinpthread.a
+COPY legacy-icon.ico /tmp/vim.ico
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -38,6 +39,8 @@ RUN cd vim-*/src && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
     { if [ "$ARCH" = i686 ]; then \
+        cp /tmp/vim.ico runtime/bitmaps/ && \
+        cp /tmp/vim.ico ./ && \
         sed -i '1 i#define GetFinalPathNameByHandleW(a, b, c, d) 0' os_mswin.c && \
         sed -i '1 i#define GetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
         sed -i '1 i#define SetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \

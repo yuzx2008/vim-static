@@ -2,7 +2,7 @@
 
 - linux: x64 static; do not depend on libc;
 
-- win32: x86 / x64; no OLE.
+- win32: x86 (source code modified! see below "about legacy vim version") / x64; no OLE.
 
 For linux,
 [archive/build.sh](archive/build.sh) is from <https://github.com/dtschan/vim-static>,
@@ -48,6 +48,10 @@ The (officially) newest version running on Windows XP: [v9.0.0495](https://githu
 
 Version after it may work, but the compilation process requires patch (see
 [Dockerfile.mingw-x86](Dockerfile.mingw-x86)); otherwise it won't even compile.
+
+[legacy icon](./legacy-icon.ico) is from
+<https://github.com/vim/vim/blob/v8.2.4544/src/vim.ico>; it is viewable in
+Windows XP, though low resolution.
 
 ### plugin
 
