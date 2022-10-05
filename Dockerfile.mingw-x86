@@ -39,7 +39,7 @@ RUN cd vim-*/src && \
         sed -i -E 's/^NETBEANS=.+/NETBEANS=no/' Make_cyg_ming.mak && \
         sed -i -E 's/^GETTEXT=.+/GETTEXT=no/' Make_cyg_ming.mak && \
     { if [ "$ARCH" = i686 ]; then \
-        cp /tmp/vim.ico runtime/bitmaps/ && \
+        cp /tmp/vim.ico ../runtime/bitmaps/ && \
         cp /tmp/vim.ico ./ && \
         sed -i '1 i#define GetFinalPathNameByHandleW(a, b, c, d) 0' os_mswin.c && \
         sed -i '1 i#define GetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
