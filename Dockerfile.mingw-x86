@@ -44,7 +44,7 @@ RUN cd vim-*/src && \
         sed -i '1 i#define GetFinalPathNameByHandleW(a, b, c, d) 0' os_mswin.c && \
         sed -i '1 i#define GetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
         sed -i '1 i#define SetConsoleScreenBufferInfoEx(a, b) ;' os_win32.c && \
-        sed -i -E 's/.* iscygpty.c -o.*/& -U_WIN32_WINNT -D_WIN32_WINNT=0x0600 -DUSE_DYNFILEID -DENABLE_STUB_IMPL/' Make_cyg_ming.mak && \
+        printf '%s\n%s\n%s\n%s\n' '#ifdef _WIN32' 'int is_cygpty(int fd) { return 0; }' 'int is_cygpty_used(void) { return 0; }' '#endif' > iscygpty.c && \
         sed -i -E 's/^.*-lstdc.*/LIB += -static-libstdc++ -static-libgcc/' Make_cyg_ming.mak; \
     fi; } && \
         env VIMDLL=yes WINVER=$(if [ "$ARCH" = i686 ]; then echo 0x0501; else echo 0x0601; fi) ARCH=$(echo $ARCH | tr _ -) CROSS_COMPILE=$ARCH-w64-mingw32- STATIC_STDCPLUS=yes STATIC_WINPTHREAD=yes \
