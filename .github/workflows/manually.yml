@@ -39,7 +39,7 @@ jobs:
       run: test -z "$(comm -12 latest.txt tagged.txt)"
 
     - name: Share version
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ver
         path: latest.txt
@@ -51,10 +51,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Download version
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ver
 
@@ -65,7 +65,7 @@ jobs:
       run: docker run --rm -i vim-build:$(cat latest.txt) cat /out/vim-$(cat latest.txt).tar.xz > vim-linux-x64.tar.xz
 
     - name: Upload binary
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: vim-linux
         path: vim-linux-x64.tar.xz
@@ -78,11 +78,11 @@ jobs:
     steps:
     - name: Checkout repo
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Download version
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ver
 
@@ -96,7 +96,7 @@ jobs:
 
     - name: Upload binary
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: vim-win32-x86
         path: vim-win32-x86.7z
@@ -109,11 +109,11 @@ jobs:
     steps:
     - name: Checkout repo
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Download version
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ver
 
@@ -127,7 +127,7 @@ jobs:
 
     - name: Upload binary
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: vim-win32-x64
         path: vim-win32-x64.7z
@@ -139,37 +139,37 @@ jobs:
 
     steps:
     - name: Download version
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ver
 
     - name: Download linux
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: vim-linux
 
     - name: Download win32 (x86)
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: vim-win32-x86
 
     - name: Download win32 (x64)
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: vim-win32-x64
 
     - name: Set version
       id: latest-ver-get
-      run: printf '::set-output name=latest::%s\n' $(cat latest.txt)
+      run: printf 'latest=%s\n' $(cat latest.txt) >> $GITHUB_OUTPUT
 
     - name: Checksum
       id: checksum
       run: |
-        printf '::set-output name=linux-x64::%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1);
-        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty');
-        printf '::set-output name=win32-x64::%s\n' $([ -f vim-win32-x64.7z ] && { sha1sum vim-win32-x64.7z | cut -d' ' -f1; } || echo 'empty');
+        printf 'linux-x64=%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1) >> $GITHUB_OUTPUT;
+        printf 'win32-x86=%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty') >> $GITHUB_OUTPUT;
+        printf 'win32-x64=%s\n' $([ -f vim-win32-x64.7z ] && { sha1sum vim-win32-x64.7z | cut -d' ' -f1; } || echo 'empty') >> $GITHUB_OUTPUT;
 
     - name: Create Release
       id: create_release
