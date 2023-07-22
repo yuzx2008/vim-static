@@ -28,6 +28,9 @@ cp bin/winpty.dll $VIMRUNTIME/winpty32.dll
 cp bin/winpty-agent.exe $VIMRUNTIME/
 ```
 
+**winpty32.dll / winpty64.dll** (instead of default filename winpty.dll):
+required to make git-for-bash work in vim embedded terminal.
+
 ## example build step
 
 ```sh
