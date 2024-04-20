@@ -8,6 +8,7 @@ WORKDIR /root
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.bfsu.edu.cn/g' /etc/apk/repositories
 
 RUN apk add gcc make musl-dev ncurses-static
+RUN apk add tar xz
 
 RUN mkdir -p /out/vim
 
@@ -45,7 +46,6 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh -e' 'export VIM="$(dirname "$(realpath "$0"
 RUN strip /out/vim/bin/vim
 RUN chown -R $(id -u):$(id -g) /out/vim
 
-RUN apk add tar xz
 RUN tar -acf /out/vim-${VIM_VERSION}.tar.xz -C /out vim
 
 RUN echo 'run `docker run --rm -i NAME-OF-THIS-IMAGE cat /out/vim-${VIM_VERSION}.tar.xz > OUTPUT-FILENAME.tar.xz` to get result file.'

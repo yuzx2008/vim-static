@@ -6,6 +6,7 @@ ARG ARCH=x86_64
 
 WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
+RUN apk add p7zip
 
 ARG VIM_VERSION=v7.2
 RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
@@ -35,7 +36,6 @@ RUN cd vim-*/src && \
 
 RUN cp -r vim-*/runtime /out/vim
 
-RUN apk add p7zip
 RUN cd /out && 7z a vim-${VIM_VERSION}.7z vim
 
 RUN echo 'run `docker run --rm -i NAME-OF-THIS-IMAGE cat /out/vim-${VIM_VERSION}.7z > OUTPUT-FILENAME.7z` to get result file.'

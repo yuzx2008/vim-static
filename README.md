@@ -85,7 +85,8 @@ docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw-x86 -t build-
 
 ## about x86 build for Windows XP
 
-The (officially) newest version running on Windows XP: [v9.0.0495](https://github.com/lxhillwind/vim-bin/releases/tag/v9.0.0495).
+The (officially) newest version running on Windows XP: v9.0.0495;
+patch [v9.0.0496](https://github.com/vim/vim/commit/27b53be3a6a340f1858bcd31233fe2efc86f8e15) drops Windows XP support.
 
 Version after it may work, but the compilation process requires patch (see
 [Dockerfile.mingw-x86](Dockerfile.mingw-x86)); otherwise it won't even compile.
