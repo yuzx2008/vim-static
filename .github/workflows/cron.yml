@@ -138,9 +138,9 @@ jobs:
     - name: Checksum
       id: checksum
       run: |
-        printf '::set-output name=linux-x64::%s\n' $(sha1sum vim-linux-x64.tar.xz | cut -d' ' -f1);
-        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha1sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty');
-        printf '::set-output name=win32-x64::%s\n' $([ -f vim-win32-x64.7z ] && { sha1sum vim-win32-x64.7z | cut -d' ' -f1; } || echo 'empty');
+        printf '::set-output name=linux-x64::%s\n' $(sha256sum vim-linux-x64.tar.xz | cut -d' ' -f1);
+        printf '::set-output name=win32-x86::%s\n' $([ -f vim-win32-x86.7z ] && { sha256sum vim-win32-x86.7z | cut -d' ' -f1; } || echo 'empty');
+        printf '::set-output name=win32-x64::%s\n' $([ -f vim-win32-x64.7z ] && { sha256sum vim-win32-x64.7z | cut -d' ' -f1; } || echo 'empty');
 
     - name: Create Release
       id: create_release
@@ -155,7 +155,7 @@ jobs:
         body: |
           Package ${{ steps.latest-ver-get.outputs.latest }}
 
-          sha1sum:
+          sha256sum:
 
           - `${{ steps.checksum.outputs.linux-x64 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-linux-x64.tar.xz`
           - `${{ steps.checksum.outputs.win32-x86 }}  vim-${{ steps.latest-ver-get.outputs.latest }}-win32-x86.7z` (compiled for Windows XP; **USE AT YOUR OWN RISK!**)
