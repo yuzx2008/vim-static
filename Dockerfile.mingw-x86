@@ -1,7 +1,7 @@
 # vim:ft=dockerfile
 
 # build winpthreads working for Windows XP.
-FROM i386/alpine as winpthreads
+FROM i386/alpine:3.20 as winpthreads
 ARG ARCH=i686
 WORKDIR /root
 RUN apk add gcc make mingw-w64-gcc mingw-w64-winpthreads
@@ -14,7 +14,7 @@ RUN cd winpthreads && \
 
 
 # specify architecture.
-FROM i386/alpine
+FROM i386/alpine:3.20
 ARG ARCH=i686
 
 WORKDIR /root

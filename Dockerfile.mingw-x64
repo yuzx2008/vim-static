@@ -1,7 +1,7 @@
 # vim:ft=dockerfile
 
 # specify architecture.
-FROM alpine
+FROM alpine:3.20
 ARG ARCH=x86_64
 
 WORKDIR /root
