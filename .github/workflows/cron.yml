@@ -37,7 +37,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Download version
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ver
 
@@ -63,7 +63,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Download version
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ver
 
@@ -89,7 +89,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Download version
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ver
 
@@ -112,22 +112,22 @@ jobs:
 
     steps:
     - name: Download version
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ver
 
     - name: Download linux
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: vim-linux
 
     - name: Download win32 (x86)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: vim-win32-x86
 
     - name: Download win32 (x64)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: vim-win32-x64
 
