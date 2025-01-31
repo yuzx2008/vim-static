@@ -6,7 +6,7 @@ ARG ARCH=x86_64
 ARG MINGW_PREFIX=mingw64
 
 WORKDIR /root
-RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-winpthreads
+RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-gcc-c++ ${MINGW_PREFIX}-winpthreads
 RUN dnf install -y p7zip curl
 
 ARG VIM_VERSION=v7.2
