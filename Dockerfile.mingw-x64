@@ -7,10 +7,10 @@ ARG MINGW_PREFIX=mingw64
 
 WORKDIR /root
 RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-winpthreads
-RUN dnf install -y p7zip
+RUN dnf install -y p7zip curl
 
 ARG VIM_VERSION=v7.2
-RUN wget https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
+RUN curl -L -o ./${VIM_VERSION}.tar.gz https://github.com/vim/vim/archive/${VIM_VERSION}.tar.gz
 RUN tar xf ${VIM_VERSION}.tar.gz
 
 RUN mkdir -p /out/vim
