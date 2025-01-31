@@ -22,7 +22,7 @@ ARG MINGW_PREFIX=mingw32
 
 WORKDIR /root
 RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-gcc-c++ ${MINGW_PREFIX}-winpthreads
-RUN dnf install -y p7zip curl
+RUN dnf install -y p7zip p7zip-plugins curl
 
 COPY --from=winpthreads /usr/i686-w64-mingw32/sys-root/mingw/lib/libwinpthread.a /usr/i686-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
 COPY legacy-icon.ico /tmp/vim.ico
