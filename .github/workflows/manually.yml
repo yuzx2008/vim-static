@@ -39,7 +39,7 @@ jobs:
       run: test -z "$(comm -12 latest.txt tagged.txt)"
 
     - name: Share version
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ver
         path: latest.txt
@@ -65,7 +65,7 @@ jobs:
       run: docker run --rm -i vim-build:$(cat latest.txt) cat /out/vim-$(cat latest.txt).tar.xz > vim-linux-x64.tar.xz
 
     - name: Upload binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: vim-linux
         path: vim-linux-x64.tar.xz
@@ -96,7 +96,7 @@ jobs:
 
     - name: Upload binary
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: vim-win32-x86
         path: vim-win32-x86.7z
@@ -127,7 +127,7 @@ jobs:
 
     - name: Upload binary
       if: ${{ github.event.inputs.skip_win32 == '0' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: vim-win32-x64
         path: vim-win32-x64.7z
