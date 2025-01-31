@@ -3,7 +3,7 @@
 # build winpthreads working for Windows XP.
 FROM fedora:41 as winpthreads
 ARG ARCH=i686
-ARG MINGW_PREFIX=mingw-w32
+ARG MINGW_PREFIX=mingw32
 
 WORKDIR /root
 RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-winpthreads
@@ -18,7 +18,7 @@ RUN cd winpthreads && \
 # specify architecture.
 FROM fedora:41
 ARG ARCH=i686
-ARG MINGW_PREFIX=mingw-w32
+ARG MINGW_PREFIX=mingw32
 
 WORKDIR /root
 RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-winpthreads

@@ -3,7 +3,7 @@
 # specify architecture.
 FROM fedora:41
 ARG ARCH=x86_64
-ARG MINGW_PREFIX=mingw-w64
+ARG MINGW_PREFIX=mingw64
 
 WORKDIR /root
 RUN dnf install -y gcc make ${MINGW_PREFIX}-gcc ${MINGW_PREFIX}-winpthreads
