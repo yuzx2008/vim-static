@@ -1,0 +1,111 @@
+FROM ubuntu:22.04
+
+WORKDIR /root
+
+RUN sed -i 's/cn.archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
+  sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
+  sed -i 's/security.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
+  rm -f /bin/sh && ln -sf /bin/bash /bin/sh && ls -lh /bin/sh && \
+  apt-get clean && \
+  apt-get update && \
+  apt-get install -qqy \
+    curl \
+    wget \
+    build-essential \
+    pkg-config \
+    linux-headers-$(uname -r) \
+    autoconf \
+    automake \
+    flex \
+    bison \
+    libtool \
+    bzip2 \
+    unzip
+
+RUN mkdir -p /out/vim
+
+# 本地的 nginx file-server
+ARG FILE_SERVER=http://192.168.3.8:8123
+
+# --prefix=/opt/openssl --openssldir=/usr/local/ssl
+RUN cd /root && \
+  FILE=openssl-3.4.0.tar.gz; wget ${FILE_SERVER}/${FILE} && tar -xf ${FILE} && \
+  cd openssl-3.4.0 && \
+  LDFLAGS="-static" \
+  ./Configure no-docs no-tests && \
+  make -j$(nproc) && \
+  make install && \
+  rm -rf /root/openssl*
+
+# 依赖 openssl，可 --disable-openssl 去除
+RUN cd /root && \
+  FILE=libevent-2.1.12-stable.tar.gz; wget ${FILE_SERVER}/${FILE} && tar -xf ${FILE} && \
+  cd libevent-2.1.12-stable && \
+  LDFLAGS="-static" \
+  ./configure && \
+  make -j$(nproc) && \
+  make install && \
+  rm -rf /root/libevent*
+
+RUN cd /root && \
+  FILE=ncurses.tar.gz; wget ${FILE_SERVER}/${FILE} && tar -xf ${FILE} && \
+  ls -lh && \
+  cd ncurses-6.3 && \
+  LDFLAGS="-static" \
+  ./configure --prefix=/opt/ncurses --enable-pc-files --without-manpages --without-tests && \
+  make -j$(nproc) && \
+  make install && \
+  rm -rf /root/ncurses*
+
+ENV PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/ncurses/bin
+
+# 依赖 yacc/ncurses，安装 bison 或 byacc（全功能 yacc）
+RUN cd /root && \
+  FILE=tmux-3.5a.tar.gz; wget ${FILE_SERVER}/${FILE} && tar -xf ${FILE} && \
+  cd tmux-3.5a && \
+  CFLAGS="-I/opt/ncurses/include" \
+  LDFLAGS="-L/opt/ncurses/lib" \
+  ./configure --prefix /opt/tmux --enable-static && \
+  make -j$(nproc) && \
+  make install && \
+  rm -rf /root/tmux*
+
+RUN cd /root && \
+  FILE=vim-9.1.1069.tar.gz; wget ${FILE_SERVER}/${FILE} && tar -xf ${FILE} && \
+  cd vim-9.1.1069 && \
+  CFLAGS="-I/opt/ncurses/include" \
+  LDFLAGS="-static -L/opt/ncurses/lib" \
+  ./configure --prefix /opt/vim \
+  --disable-gtktest \
+  --disable-gui \
+  --disable-netbeans \
+  --disable-nls \
+  --disable-selinux \
+  --disable-smack \
+  --disable-sysmouse \
+  --disable-xsmp \
+  --enable-gpm \
+  --enable-multibyte \
+  --with-compiledby='yuzx2008' \
+  --with-features=huge \
+  --with-tlib=ncurses \
+  --without-x && \
+  sed -E -i 's#.*HAVE_DLOPEN.*#/* & */#' src/auto/config.h && \
+  sed -E -i 's#.*HAVE_DLSYM.*#/* & */#' src/auto/config.h && \
+  make -j$(nproc) && \
+  make install && \
+  rm -rf /root/vim*
+
+RUN ls -lh /opt && \
+  chown -R $(id -u):$(id -g) /opt/ncurses && \
+  tar -acf /ncurses.tar.xz -C /opt ncurses
+
+RUN ls -lh /opt && \
+  strip /opt/vim/bin/vim && \
+  chown -R $(id -u):$(id -g) /opt/vim && \
+  tar -acf /vim.tar.xz -C /opt vim
+
+RUN ls -lh /opt && \
+  strip /opt/tmux/bin/tmux && \
+  chown -R $(id -u):$(id -g) /opt/tmux && \
+  tar -acf /tmux.tar.xz -C /opt tmux

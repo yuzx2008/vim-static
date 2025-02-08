@@ -1,96 +1,57 @@
 # vim build
 
-## feature
+解决的问题：
+云上开发，或者本地基于 docker image 开发，遇到各种各样的 os 及版本，
+对应 apt、yum 源中的 vim 版本参差不齐，
+需要编译安装 vim，但是编译坑太多，这里采用静态编译方式 build vim，可以一次编译到处运行。
 
-- linux
-    - x64 build;
-    - do not depend on system libc;
-    - provides a `vim/AppRun` script to make the build "portable" (you can put
-      the directory anywhere, then simply `ln -s path-to-AppRun desired-path`);
+下载源码放到本地 fileserver，避免 docker build 上网问题
 
-- win32
-    - x86 / x64 build;
-    - no OLE (so portable);
-    - you can create a desktop shortcut to `vim/gvim.exe`; or just add the
-      directory to `$PATH`;
-
-directory structure:
-
-```console
-# win32 build
-vim/
-vim/runtime/
-vim/gvim.exe
-vim/tee.exe
-vim/vim.exe
-vim/vim32.dll
-vim/vimrun.exe
-vim/xxd.exe
-
-# linux build
-vim/
-vim/AppRun
-vim/bin/
-vim/bin/xxd
-vim/bin/vim
-vim/runtime/
+```bash
+wget https://invisible-island.net/datafiles/release/ncurses.tar.gz
+wget https://github.com/vim/vim/archive/v9.1.1069.tar.gz
+wget https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+wget https://github.com/tmux/tmux/releases/download/3.5a/tmux-3.5a.tar.gz
+wget https://github.com/openssl/openssl/releases/download/openssl-3.4.0/openssl-3.4.0.tar.gz
 ```
 
-<details>
+build image
 
-<summary>
-about build script
-</summary>
+```bash
+nerdctl build \
+  --add-host=mirrors.tuna.tsinghua.edu.cn:101.6.15.130 \
+  --add-host=github.com:20.205.243.166 \
+  --buildkit-host=unix:///var/run/buildkit/buildkitd.sock \
+  --build-arg=FILE_SERVER=http://192.168.3.8:8123 \
+  --platform="amd64" \
+  --file "Dockerfile.ubuntu" \
+  -t "vim:0.0.1" \
+  .
 
-For linux,
-[archive/build.sh](archive/build.sh) is from <https://github.com/dtschan/vim-static>,
-[modified](Dockerfile) to be used in docker.
+# 将静态编译的文件拷回到本地
+sudo nerdctl run -it --rm \
+  -v /data/downloads:/data/downloads \
+  vim:0.0.1 \
+  sh -c "cp /vim.tar.xz /data/downloads && \
+  cp /tmux.tar.xz /data/downloads && \
+  cp /ncurses.tar.xz /data/downloads"
 
-For win32,
-[archive/build.bat](archive/build.bat) is from <https://github.com/vim/vim-win32-installer>.
-
-(But now I use [mingw 32bit](Dockerfile.mingw-x86) / [mingw 64bit](Dockerfile.mingw-x64) to compile instead; instruction can be found in
-<https://github.com/vim/vim/blob/master/src/INSTALLpc.txt>
-)
-
-</details>
-
-## note for Windows
-
-winpty is not included; download it manually from
-<https://github.com/rprichard/winpty/releases>.
-
-```sh
-# example for x86:
-curl -L https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-0.4.3-msys2-2.7.0-ia32.tar.gz -o winpty.tar.gz
-tar --strip-components=1 -xf winpty.tar.gz
-cp bin/winpty.dll $VIMRUNTIME/winpty32.dll
-cp bin/winpty-agent.exe $VIMRUNTIME/
 ```
 
-**winpty32.dll / winpty64.dll** (instead of default filename winpty.dll):
-required to make git-for-bash work in vim embedded terminal.
+使用
 
-## how to build on your own host
+```bash
+# coc.nvim 依赖
+tar -xf /data/downloads/node-v22.12.0-linux-x64.tar.xz -C /opt
+ln -sf -T /opt/node-v22.12.0-linux-x64 /opt/node
 
-```sh
-# linux build
-docker build --build-arg VIM_VERSION=v8.2.2845 -t build-vim-8 .
+# 上面 build 的结果
+tar -xf /data/downloads/vim.tar.xz -C /opt
+tar -xf /data/downloads/tmux.tar.xz -C /opt
+tar -xf /data/downloads/ncurses.tar.xz -C /opt
 
-# win32 x86 build
-docker build --build-arg VIM_VERSION=v8.2.2845 -f Dockerfile.mingw-x86 -t build-vim-win32-x86 .
+# 将 ~/.vim ~/.vimrc 和 ~/.config/coc 拷贝到 $HOME 中
+
+export PATH=/opt/ncurses/bin:/opt/vim/bin:/opt/node/bin:/opt/tmux/bin:$PATH
+vim
 ```
-
-`VIM_VERSION` is tag name in <https://github.com/vim/vim>.
-
-## about x86 build for Windows XP
-
-The (officially) newest version running on Windows XP: v9.0.0495;
-patch [v9.0.0496](https://github.com/vim/vim/commit/27b53be3a6a340f1858bcd31233fe2efc86f8e15) drops Windows XP support.
-
-Version after it may work, but the compilation process requires patch (see
-[Dockerfile.mingw-x86](Dockerfile.mingw-x86)); otherwise it won't even compile.
-
-[legacy icon](./legacy-icon.ico) is from
-<https://github.com/vim/vim/blob/v8.2.4544/src/vim.ico>; it is viewable in
-Windows XP, though low resolution.
